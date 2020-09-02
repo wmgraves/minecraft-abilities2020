@@ -13,20 +13,20 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionOperationException;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.sk89q.worldedit.world.block.BlockType;
 import com.tommytony.war.Team;
 import com.tommytony.war.Warzone;
 import com.tommytony.war.config.WarzoneConfig;
 import com.tommytony.war.volume.Volume;
 import com.tommytony.war.volume.ZoneVolume;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -35,6 +35,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.sk89q.worldedit.bukkit.BukkitAdapter.*;
 
 public abstract class SchematicStyle extends AbilityStyle {
 
@@ -89,22 +91,22 @@ public abstract class SchematicStyle extends AbilityStyle {
             Clipboard schematic = schematics.get(0);
             Region schematicVolume = schematic.getRegion().clone();
             try {
-                schematicVolume.shift(BukkitAdapter.asBlockVector(p.getLocation()).subtract(schematic.getOrigin()));
+                schematicVolume.shift(asBlockVector(p.getLocation()).subtract(schematic.getOrigin()));
             } catch (RegionOperationException e) {
                 e.printStackTrace();
             }
             if (zone.getWarzoneConfig().contains(WarzoneConfig.UNBREAKABLE) && zone.getWarzoneConfig().getBoolean(WarzoneConfig.UNBREAKABLE)) {
                 return -3;
             }
-            Location minSchematicLoc = BukkitAdapter.adapt(p.getWorld(), schematicVolume.getMinimumPoint());
-            Location maxSchematicLoc = BukkitAdapter.adapt(p.getWorld(), schematicVolume.getMaximumPoint());
+            Location minSchematicLoc = adapt(p.getWorld(), schematicVolume.getMinimumPoint());
+            Location maxSchematicLoc = adapt(p.getWorld(), schematicVolume.getMaximumPoint());
             if (!fullVolume.contains(minSchematicLoc)
                     || !fullVolume.contains(maxSchematicLoc)
                     || zoneVolumes.stream().anyMatch(v ->
-                           v.contains(minSchematicLoc)
-                        || v.contains(maxSchematicLoc)
-                        || schematicVolume.contains(BukkitAdapter.asBlockVector(v.getCornerOne()))
-                        || schematicVolume.contains(BukkitAdapter.asBlockVector(v.getCornerTwo()))
+                    v.contains(minSchematicLoc)
+                            || v.contains(maxSchematicLoc)
+                            || schematicVolume.contains(asBlockVector(v.getCornerOne()))
+                            || schematicVolume.contains(asBlockVector(v.getCornerTwo()))
             )) {
                 return -1;
             }
@@ -130,16 +132,30 @@ public abstract class SchematicStyle extends AbilityStyle {
         state /= CoronaCraft.ABILITY_TICK_PER_SECOND;
         Clipboard schematic = schematics.get(state - 1);
         try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
-                .getEditSession(BukkitAdapter.adapt(p.getWorld()), -1)) {
+                .getEditSession(adapt(p.getWorld()), -1)) {
             ClipboardHolder holder = new ClipboardHolder(schematic);
             AffineTransform transform = new AffineTransform().rotateY(rotation(REFERENCE_POINTS.get(p.getUniqueId())));
             holder.setTransform(holder.getTransform().combine(transform));
             Operation operation = holder
                     .createPaste(editSession)
-                    .to(BukkitAdapter.asBlockVector(REFERENCE_POINTS.get(p.getUniqueId())))
+                    .to(asBlockVector(REFERENCE_POINTS.get(p.getUniqueId())))
                     .ignoreAirBlocks(true)
                     .build();
             Operations.complete(operation);
+
+            // Handle special schematic functions
+            if (state == 1) {
+                if (this instanceof Turret) {
+                    // Activate turret
+                    Location turretLocation = REFERENCE_POINTS.get(p.getUniqueId());
+                    ((Turret) this).activateTurret(p, turretLocation, rotation(REFERENCE_POINTS.get(p.getUniqueId())));
+                }
+                else if (this instanceof Healer) {
+                    // Activate healer
+                    Location healerLocation = REFERENCE_POINTS.get(p.getUniqueId());
+                    ((Healer) this).activateHealer(p, healerLocation, rotation(REFERENCE_POINTS.get(p.getUniqueId())));
+                }
+            }
         } catch (WorldEditException e) {
             e.printStackTrace();
         }

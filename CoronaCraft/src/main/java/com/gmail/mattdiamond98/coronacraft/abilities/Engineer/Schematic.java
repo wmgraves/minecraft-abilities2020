@@ -11,11 +11,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import static com.gmail.mattdiamond98.coronacraft.util.AbilityUtil.notInSpawn;
+import static org.bukkit.Bukkit.getServer;
 
 public class Schematic extends Ability {
 
@@ -30,6 +32,13 @@ public class Schematic extends Ability {
         styles.add(new Tower());
         styles.add(new Wall());
         styles.add(new Bridge());
+        styles.add(new Turret());
+        styles.add(new Healer());
+
+        for (AbilityStyle style : styles) {
+            if (!(style instanceof Listener)) { continue; }
+            getServer().getPluginManager().registerEvents((Listener) style, CoronaCraft.instance);
+        }
     }
 
     @EventHandler
@@ -37,7 +46,15 @@ public class Schematic extends Ability {
         Player p = e.getPlayer();
         if (e.hasItem() && e.getItem().getType() == item && notInSpawn(p)) {
             if (e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-                AbilityStyle schematic = getStyle(p);
+                SchematicStyle schematic = (SchematicStyle)getStyle(p);
+
+                if (schematic instanceof Turret) {
+                    if (((Turret) schematic).playerHasActiveTurret(p)) {
+                        p.sendMessage(ChatColor.RED + "You cannot have more than one active turret.");
+                        return;
+                    }
+                }
+
                 int steps = schematic.execute(p, -1);
                 if (steps == -4) p.sendMessage(ChatColor.RED + "You must stand still to place a schematic.");
                 else if (steps == -3) p.sendMessage(ChatColor.RED + "Building is disabled on this map.");
@@ -54,7 +71,7 @@ public class Schematic extends Ability {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDropItem(PlayerDropItemEvent e) {
-        if ((e.getItemDrop().getItemStack().getType() == item) && notInSpawn(e.getPlayer())) {
+        if ((e.getItemDrop().getItemStack().getType() == item) /*&& notInSpawn(e.getPlayer())*/) {
             if (CoronaCraft.isOnCooldown(e.getPlayer(), item)) {
                 e.getPlayer().sendMessage(ChatColor.RED + "Finish your current schematic first!");
             } else {
