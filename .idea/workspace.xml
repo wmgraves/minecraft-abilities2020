@@ -28,13 +28,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0581fea0-4993-45b5-9c7e-537ca940b2dd" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/CoronaCraft_jar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/CoronaCraft_jar.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/artifacts/CoronaCraft_jar2.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/BarbedArrow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/BodkinArrow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/BusterArrow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/DippedArrow.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/HeavyArrow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoronaCraft.iml" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/CoronaCraft.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/CoronaCraft.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/CoronaCraft.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CoronaCraft/META-INF/CoronaCraft.kotlin_module" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/Loadout.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/Loadout.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/Longbow.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/Longbow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/PrimordialArrow.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/PrimordialArrow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/SlayingArrow.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Ranger/SlayingArrow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/util/MetadataKey.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/util/MetadataKey.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

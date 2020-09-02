@@ -6,7 +6,6 @@ import com.gmail.mattdiamond98.coronacraft.abilities.ProjectileAbilityStyle;
 import com.gmail.mattdiamond98.coronacraft.util.AbilityUtil;
 import com.gmail.mattdiamond98.coronacraft.util.InstantFirework;
 import com.gmail.mattdiamond98.coronacraft.util.MetadataKey;
-import com.tommytony.war.Team;
 import com.tommytony.war.Warzone;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -31,9 +30,8 @@ public class PrimordialArrow extends ProjectileAbilityStyle {
 
     public PrimordialArrow() {
         super("Primordial Arrow", new String[] {
-                "Shoot an arrow by crouching that",
-                "spawns a poisonous thicket where",
-                "it lands.",
+                "When crouching, shoot an arrow that",
+                "spawns a poisonous thicket where it lands.",
                 "Cost: 40 Arrows"
         }, "coronacraft.ranger.primordialarrow", 823456);
     }
