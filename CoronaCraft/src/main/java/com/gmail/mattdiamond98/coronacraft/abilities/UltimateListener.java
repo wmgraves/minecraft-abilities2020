@@ -3,6 +3,8 @@ package com.gmail.mattdiamond98.coronacraft.abilities;
 import com.gmail.mattdiamond98.coronacraft.Loadout;
 import com.gmail.mattdiamond98.coronacraft.event.CoronaCraftTickEvent;
 import com.gmail.mattdiamond98.coronacraft.util.AbilityUtil;
+import com.gmail.mattdiamond98.coronacraft.util.Achievements;
+import com.gmail.mattdiamond98.coronacraft.util.Leaderboard;
 import com.gmail.mattdiamond98.coronacraft.util.PlayerInteraction;
 import com.tommytony.war.Team;
 import com.tommytony.war.War;
@@ -33,9 +35,12 @@ public class UltimateListener implements Listener {
             assists.removeAll(Team.getTeamByPlayerName(victim.getName()).getPlayers());
             killer.sendMessage(ChatColor.GREEN + "+1 Kill");
             UltimateTracker.incrementProgress(killer, UltimateTracker.PLAYER_KILL_REWARD);
+            Leaderboard.addKill(killer);
+            Leaderboard.addDeath(victim);
             for (Player assist : assists) {
                 assist.sendMessage(ChatColor.GREEN + "+1 Assist");
                 UltimateTracker.incrementProgress(assist, UltimateTracker.PLAYER_ASSIST_REWARD);
+                Leaderboard.addAssist(assist);
             }
         }
         PlayerInteraction.clearHarm(victim);
@@ -51,6 +56,7 @@ public class UltimateListener implements Listener {
     @EventHandler
     public void onPlayerScore(WarPlayerScoreEvent e) {
         UltimateTracker.incrementProgress(e.getPlayer(), UltimateTracker.PLAYER_SCORE_REWARD);
+        Leaderboard.addCapture(e.getPlayer());
     }
 
     @EventHandler
@@ -77,7 +83,7 @@ public class UltimateListener implements Listener {
                         if (percent < 0.0F) percent = 0.0F;
                         if (percent > 1.0F) percent = 1.0F;
                         player.setExp(percent);
-                }
+                    }
             }
         }
     }
@@ -86,7 +92,16 @@ public class UltimateListener implements Listener {
     public void onGameEnd(WarBattleWinEvent e) {
         for (Player player : e.getZone().getPlayers()) {
             UltimateTracker.setGameTimeProgress(player, 0);
+            Leaderboard.addGamePlayed(player);
         }
+        for (Team team : e.getWinningTeams()) {
+            Achievements.checkSpecialAchievements(team);
+            for (Player player : team.getPlayers()) {
+                Leaderboard.addGameWon(player);
+            }
+        }
+        Leaderboard.updateSigns();
+        Achievements.checkAchievements();
     }
 
     @EventHandler
