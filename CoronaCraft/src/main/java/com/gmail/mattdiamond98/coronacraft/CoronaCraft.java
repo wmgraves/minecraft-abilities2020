@@ -38,7 +38,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.ejml.simple.SimpleMatrix;
-
 import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;

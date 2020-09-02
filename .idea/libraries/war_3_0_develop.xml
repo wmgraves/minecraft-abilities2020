@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="war-3.0-develop">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../war-3.0-develop.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../war-3.0-develop.jar!/" />
+    </SOURCES>
+  </library>
+</component>

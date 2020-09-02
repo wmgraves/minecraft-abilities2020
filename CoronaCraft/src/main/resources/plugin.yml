@@ -1,10 +1,6 @@
 name: CoronaCraft
 version: 1.0
-author: Matan Diamond
+authors: [Matan Diamond, BucketOfJava, William Graves]
+description: CoronaCraft plugin
 main: com.gmail.mattdiamond98.coronacraft.CoronaCraft
 api-version: 1.15
-commands:
-    starttourney:
-      usage:/<command> requiredparam
-    startround:
-      usage:/<command> requiredparam
