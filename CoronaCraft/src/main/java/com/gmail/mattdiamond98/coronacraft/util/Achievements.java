@@ -1,6 +1,7 @@
 package com.gmail.mattdiamond98.coronacraft.util;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
+import com.tommytony.war.Team;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -132,19 +133,51 @@ public class Achievements implements Listener {
         }
     }
 
+    private static boolean bankAchievement(Player player, String achievementName,
+                                           String achievementDescription) {
+        if (player == null) { return false; }
+
+        // Check whether player was already awarded the achievement
+        HashMap<String, Boolean> achievementData = data.get(player.getUniqueId());
+        if (achievementData.get(achievementName)) { return false; }
+
+        // Give the player the achievement and bank the message
+        achievementData.replace(achievementName, true);
+        if (!bankedAchievements.containsKey(player.getUniqueId())) {
+            bankedAchievements.put(player.getUniqueId(), new HashMap<String, String>());
+        }
+        bankedAchievements.get(player.getUniqueId()).put(achievementName, achievementDescription);
+
+        return true;
+    }
+
     private static void checkBankedAchievements(Player player) {
         // Check whether player has banked special achievements
         if (bankedAchievements.containsKey(player.getUniqueId())) {
             HashMap<String, String> achievementInfo = bankedAchievements.get(player.getUniqueId());
             if (achievementInfo == null || achievementInfo.size() == 0) { return; }
 
-            // Award all banked achievements
-            for (Map.Entry pair : achievementInfo.entrySet()) {
-                broadcastAchievement(player, (String) pair.getKey(), (String) pair.getValue());
+            // Award all banked achievements that were not previously awarded
+            for (Map.Entry<String, String> pair : achievementInfo.entrySet()) {
+                broadcastAchievement(player, pair.getKey(), pair.getValue());
             }
 
             // Remove the player from the banked achievements list
             bankedAchievements.remove(player.getUniqueId());
+        }
+    }
+
+    public static void checkSpecialAchievements(Team team) {
+        // Handle "Guaranteed Win" - play on Arvein's team
+        for (Player player : team.getPlayers()) {
+            if (player.getName().toLowerCase() == "arvein") {
+                // Award all players on arvein's team, then break out of the loop
+                for (Player awardedPlayer : team.getPlayers()) {
+                    bankAchievement(player, "Guaranteed Win",
+                            "Play on arvein's team");
+                }
+                break;
+            }
         }
     }
 
