@@ -37,6 +37,7 @@ public class UltimateListener implements Listener {
             UltimateTracker.incrementProgress(killer, UltimateTracker.PLAYER_KILL_REWARD);
             Leaderboard.addKill(killer);
             Leaderboard.addDeath(victim);
+            Achievements.checkSpecialAchievements(killer, victim);
             for (Player assist : assists) {
                 assist.sendMessage(ChatColor.GREEN + "+1 Assist");
                 UltimateTracker.incrementProgress(assist, UltimateTracker.PLAYER_ASSIST_REWARD);
