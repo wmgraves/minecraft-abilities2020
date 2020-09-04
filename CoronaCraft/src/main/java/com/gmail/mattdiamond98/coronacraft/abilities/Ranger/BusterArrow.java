@@ -40,8 +40,8 @@ public class BusterArrow extends ProjectileAbilityStyle {
         boolean destroy = zone == null ||
                 zone.getWarzoneConfig().contains(WarzoneConfig.UNBREAKABLE) &&
                         zone.getWarzoneConfig().getBoolean(WarzoneConfig.UNBREAKABLE);
-        arrow.getWorld().createExplosion(arrow.getLocation(),4.0F, false, !destroy, null);
-        arrow.remove();
+        arrow.getWorld().createExplosion(arrow.getLocation(),2.0F, false, !destroy, null);
+        arrow.remove(); // Make sure the arrow cannot be re-triggered if it bounced
 
         return 0;
     }

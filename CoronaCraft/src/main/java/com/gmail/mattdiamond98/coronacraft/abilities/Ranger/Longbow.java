@@ -137,20 +137,6 @@ public class Longbow extends Ability implements Listener {
         return true;
     }
 
-//    static void applyDistanceBonus(ProjectileHitEvent event, Arrow arrow) {
-//        // Check if a player was hit
-//        Player player = (Player) event.getHitEntity();
-//        if (player == null) { return; }
-//
-//        if (arrow.hasMetadata(MetadataKey.FIRED_FROM)) {
-//            Location firedFrom = (Location) arrow.getMetadata(MetadataKey.FIRED_FROM).get(0).value();
-//            if (arrow.getLocation().distanceSquared(firedFrom) >= 35*35) {
-//                arrow.setVelocity(arrow.getVelocity().multiply(1.5));
-//                ((Player) arrow.getShooter()).sendMessage(ChatColor.GREEN + "Long shot!");
-//            }
-//        }
-//    }
-
     @EventHandler
     public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
         // Check that a player was hit by an arrow
