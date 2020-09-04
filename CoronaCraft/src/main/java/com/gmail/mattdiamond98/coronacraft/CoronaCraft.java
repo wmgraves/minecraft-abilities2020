@@ -18,11 +18,10 @@ import com.gmail.mattdiamond98.coronacraft.abilities.Ninja.NinjaMovement;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ninja.ShadowKnife;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ninja.ShurikenBag;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ranger.Longbow;
-import com.gmail.mattdiamond98.coronacraft.abilities.Reaper.HoeStyle;
+import com.gmail.mattdiamond98.coronacraft.abilities.Reaper.Scythe;
 import com.gmail.mattdiamond98.coronacraft.abilities.Skirmisher.Shortsword;
 import com.gmail.mattdiamond98.coronacraft.abilities.Skirmisher.Trap;
 import com.gmail.mattdiamond98.coronacraft.abilities.Tank.Rally;
-import com.gmail.mattdiamond98.coronacraft.abilities.Wizard.Spellbook;
 import com.gmail.mattdiamond98.coronacraft.abilities.Wizard.Wand;
 import com.gmail.mattdiamond98.coronacraft.data.PlayerData;
 import com.gmail.mattdiamond98.coronacraft.event.CoolDownEndEvent;
@@ -37,12 +36,9 @@ import net.milkbowl.vault.economy.Economy;
 import com.gmail.mattdiamond98.coronacraft.util.PlayerTimerKey;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.ejml.simple.SimpleMatrix;
-
 import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
@@ -103,7 +99,7 @@ public class CoronaCraft extends JavaPlugin {
                 new Waraxe(),
                 new Rush(),
                 new Wand(),
-                new HoeStyle()
+                new Scythe()
         );
 
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);

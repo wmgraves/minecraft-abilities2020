@@ -27,7 +27,8 @@ public enum Loadout {
     GLADIATOR(Material.TRIDENT, new StormGodsWrath()),
     TANK(Material.SHIELD, new DesolationFist()),
     ANARCHIST(Material.FLINT_AND_STEEL, new TNTTrail()),
-    WIZARD(Material.BLAZE_ROD, new WizardUltimateAbility());
+    WIZARD(Material.BLAZE_ROD, new WizardUltimateAbility()),
+    REAPER(Material.IRON_HOE, new TNTTrail());
 
     private Material item;
     private UltimateAbility ultimate;
