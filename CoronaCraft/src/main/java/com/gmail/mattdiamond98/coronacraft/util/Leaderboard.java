@@ -5,8 +5,8 @@ import org.bukkit.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BlockVector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.*;
@@ -22,7 +22,7 @@ public class Leaderboard implements Serializable {
     private static transient final long serialVersionUID = 3455595407807914611L;
     private static String folderPath;
     private static String fileType;
-    private static int autosaveInterval = 20 * 60;
+    private static int autosaveInterval = 30 * 60;
     private static Achievements achievementTracker;
 
     private static Map<UUID, Integer> killRecordsAll = new HashMap<>();
@@ -58,104 +58,162 @@ public class Leaderboard implements Serializable {
      * Updates all leaderboard signs.
      */
     public static void updateSigns() {
-        // Update each sign if it is in the correct location
+        // Initialize variables
         World world = Bukkit.getServer().getWorld("world");
+        Location headerLocation = new Location(world, 114, 23, 239);
+        Location monthLocation = new Location(world, 114, 22, 239);
+        Location allTimeLocation = new Location(world, 114, 21, 239);
+        BlockVector increment = new BlockVector(-1, 0, 0);
 
-        // Header signs
-        BlockState state = world.getBlockAt(114,23,239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
-            String formattedDate = date.format(DateTimeFormatter.ofPattern("hh:mma"));
-            String[] newText = new String[]{"§a§lLEADERBOARD", "§l--------------------", "Last Updated at",
-                    formattedDate + " EST"};
-            updateSignText(sign, newText);
-        }
-        state = world.getBlockAt(114,22,239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String[] newText = new String[]{"§l------------>", "§6§lCURRENT MONTH", "§6§lRECORDS",
-                    "§l------------>"};
-            updateSignText(sign, newText);
-        }
-        state = world.getBlockAt(114,21, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String[] newText = new String[]{"§l------------>", "§6§lALL-TIME", "§6§lRECORDS",
-                    "§l------------>"};
-            updateSignText(sign, newText);
-        }
+        // Create header signs
+        BlockState state = world.getBlockAt(headerLocation).getState();
+        if (!(state instanceof Sign)) { return; }
+        Sign sign = (Sign) state;
+        LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("hh:mma"));
+        String[] newText = new String[]{"§a§lLEADERBOARD", "§l--------------------", "Last Updated at",
+                formattedDate + " EST"};
+        updateSignText(sign, newText);
 
-        // Kill record signs
-        state = world.getBlockAt(113,23,239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String[] newText = new String[]{"", "§lTotal", "§lKills", ""};
-            updateSignText(sign, newText);
-        }
-        state = world.getBlockAt(113,22, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(killRecordsMonth));
-        }
-        state = world.getBlockAt(113,21, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(killRecordsAll));
-        }
+        state = world.getBlockAt(monthLocation).getState();
+        if (!(state instanceof Sign)) { return; }
+        sign = (Sign) state;
+        newText = new String[]{"§l------------>", "§6§lCURRENT MONTH", "§6§lRECORDS", "§l------------>"};
+        updateSignText(sign, newText);
 
-        // Assist record signs
-        state = world.getBlockAt(112,23,239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String[] newText = new String[]{"", "§lTotal", "§lAssists", ""};
-            updateSignText(sign, newText);
-        }
-        state = world.getBlockAt(112,22, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(assistRecordsMonth));
-        }
-        state = world.getBlockAt(112,21, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(assistRecordsAll));
-        }
+        state = world.getBlockAt(allTimeLocation).getState();
+        if (!(state instanceof Sign)) { return; }
+        sign = (Sign) state;
+        newText = new String[]{"§l------------>", "§6§lALL-TIME", "§6§lRECORDS", "§l------------>"};
+        updateSignText(sign, newText);
 
-        // Capture record signs
-        state = world.getBlockAt(111,23,239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String[] newText = new String[]{"", "§lTotal", "§lCaptures", ""};
-            updateSignText(sign, newText);
-        }
-        state = world.getBlockAt(111,22, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(captureRecordsMonth));
-        }
-        state = world.getBlockAt(111,21, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(captureRecordsAll));
-        }
+        // Iterate through connected signs to display specific stats
+        headerLocation.add(increment);
+        monthLocation.add(increment);
+        allTimeLocation.add(increment);
+        while (world.getBlockAt(headerLocation).getState() instanceof Sign) {
+            // Figure out what stat should be displayed in the current column
+            state = world.getBlockAt(headerLocation).getState();
+            sign = (Sign) state;
+            switch (ChatColor.stripColor(sign.getLine(2)).trim().toLowerCase()) {
+                case "kill":
+                case "kills":
+                    newText = new String[]{"", "§lTotal", "§lKills", ""};
+                    updateSignText(sign, newText);
 
-        // Games won record signs
-        state = world.getBlockAt(110,23,239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            String[] newText = new String[]{"", "§lTotal", "§lWins", ""};
-            updateSignText(sign, newText);
-        }
-        state = world.getBlockAt(110,22, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(gamesWonRecordsMonth));
-        }
-        state = world.getBlockAt(110,21, 239).getState();
-        if (state instanceof Sign) {
-            Sign sign = (Sign) state;
-            updateSignText(sign, getTopPlayerStrings(gamesWonRecordsAll));
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(killRecordsMonth));
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(killRecordsAll));
+                    }
+                    break;
+                case "assist":
+                case "assists":
+                    newText = new String[]{"", "§lTotal", "§lAssists", ""};
+                    updateSignText(sign, newText);
+
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(assistRecordsMonth));
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(assistRecordsAll));
+                    }
+                    break;
+                case "death":
+                case "deaths":
+                    newText = new String[]{"", "§lTotal", "§lDeaths", ""};
+                    updateSignText(sign, newText);
+
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(deathRecordsMonth));
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(deathRecordsAll));
+                    }
+                    break;
+                case "capture":
+                case "captures":
+                    newText = new String[]{"", "§lTotal", "§lCaptures", ""};
+                    updateSignText(sign, newText);
+
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(captureRecordsMonth));
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(captureRecordsAll));
+                    }
+                    break;
+                case "win":
+                case "wins":
+                    newText = new String[]{"", "§lTotal", "§lWins", ""};
+                    updateSignText(sign, newText);
+
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(gamesWonRecordsMonth));
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(gamesWonRecordsAll));
+                    }
+                    break;
+                case "play":
+                case "plays":
+                case "games played":
+                    newText = new String[]{"", "§lTotal", "§lGames Played", ""};
+                    updateSignText(sign, newText);
+
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(gamesPlayedRecordsMonth));
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, getTopPlayerStrings(gamesPlayedRecordsAll));
+                    }
+                    break;
+
+                default:
+                    newText = new String[]{"Unrecognized", "keyword.", "Please enter", "something else."};
+                    updateSignText(sign, newText);
+
+                    state = world.getBlockAt(monthLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, newText);
+                    }
+                    state = world.getBlockAt(allTimeLocation).getState();
+                    if (state instanceof Sign) {
+                        sign = (Sign) state;
+                        updateSignText(sign, newText);
+                    }
+            }
+
+            // Prepare for next iteration
+            headerLocation.add(increment);
+            monthLocation.add(increment);
+            allTimeLocation.add(increment);
         }
     }
 
@@ -184,7 +242,7 @@ public class Leaderboard implements Serializable {
         for (int i = 0; i < uuids.length; i++) {
             UUID uuid = uuids[i];
             if (uuid == null) {
-                returnArray[i] = "§8--------------";
+                returnArray[i] = "§8§l--------------";
             }
             else {
                 returnArray[i] = database.get(uuid).toString() + ": " + Bukkit.getOfflinePlayer(uuid).getName();
