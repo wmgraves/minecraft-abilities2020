@@ -307,7 +307,7 @@ public class Leaderboard implements Serializable {
         }
         catch (IOException e) {
             e.printStackTrace();
-            Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Failed to save leaderboard data - report this to @Developer on discord immediately");
+            Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Failed to save leaderboard data - report this to @the_oshawott on discord immediately");
             return false;
         }
     }
