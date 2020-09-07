@@ -29,6 +29,7 @@ public class UltimateListener implements Listener {
     public void onPlayerDeath(WarPlayerDeathEvent e) {
         Player victim = e.getVictim();
         Player killer = PlayerInteraction.getMostRecentHarm(victim);
+        Achievements.checkSpecialKillAchievements(killer, victim);
         Set<Player> assists = PlayerInteraction.getRecentHarm(victim, System.currentTimeMillis() - 10_000);
         if (killer != null) {
             assists.remove(killer);
@@ -37,7 +38,6 @@ public class UltimateListener implements Listener {
             UltimateTracker.incrementProgress(killer, UltimateTracker.PLAYER_KILL_REWARD);
             Leaderboard.addKill(killer);
             Leaderboard.addDeath(victim);
-            Achievements.checkSpecialAchievements(killer, victim);
             for (Player assist : assists) {
                 assist.sendMessage(ChatColor.GREEN + "+1 Assist");
                 UltimateTracker.incrementProgress(assist, UltimateTracker.PLAYER_ASSIST_REWARD);
@@ -93,16 +93,7 @@ public class UltimateListener implements Listener {
     public void onGameEnd(WarBattleWinEvent e) {
         for (Player player : e.getZone().getPlayers()) {
             UltimateTracker.setGameTimeProgress(player, 0);
-            Leaderboard.addGamePlayed(player);
         }
-        for (Team team : e.getWinningTeams()) {
-            Achievements.checkSpecialAchievements(team);
-            for (Player player : team.getPlayers()) {
-                Leaderboard.addGameWon(player);
-            }
-        }
-        Leaderboard.updateSigns();
-        Achievements.checkAchievements();
     }
 
     @EventHandler

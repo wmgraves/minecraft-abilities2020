@@ -1,10 +1,14 @@
 package com.gmail.mattdiamond98.coronacraft.util;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
+import com.tommytony.war.Team;
+import com.tommytony.war.event.WarScoreCapEvent;
 import org.bukkit.*;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -18,7 +22,7 @@ import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-public class Leaderboard implements Serializable {
+public class Leaderboard implements Serializable, Listener {
     private static transient final long serialVersionUID = 3455595407807914611L;
     private static String folderPath;
     private static String fileType;
@@ -39,6 +43,8 @@ public class Leaderboard implements Serializable {
     private static Map<UUID, Integer> captureRecordsMonth = new HashMap<>();
     private static Map<UUID, Integer> gamesPlayedRecordsMonth = new HashMap<>();
     private static Map<UUID, Integer> gamesWonRecordsMonth = new HashMap<>();
+
+    public Leaderboard() {}
 
     public static void initialize() {
         loadData();
@@ -280,8 +286,8 @@ public class Leaderboard implements Serializable {
         System.out.println("Saving leaderboard data...");
         try {
             // Save all-time data
-            BukkitObjectOutputStream out = new BukkitObjectOutputStream(new GZIPOutputStream(new FileOutputStream(
-                    folderPath + "killRecordsAll" + fileType)));
+            BukkitObjectOutputStream out = new BukkitObjectOutputStream(new GZIPOutputStream(
+                    new FileOutputStream(folderPath + "killRecordsAll" + fileType)));
             out.writeObject(killRecordsAll);
             out.close();
 
@@ -543,10 +549,12 @@ public class Leaderboard implements Serializable {
             killRecordsMonth.put(player.getUniqueId(), 1);
         }
         else {
-            killRecordsMonth.replace(player.getUniqueId(), killRecordsMonth.get(player.getUniqueId()) + 1);
+            killRecordsMonth.replace(player.getUniqueId(), killRecordsMonth.get(
+                    player.getUniqueId()) + 1);
         }
 
-        Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " has killed " + killRecordsAll.get(player.getUniqueId()) + " player(s)");
+        // Check achievements
+        Achievements.checkKillTotalAchievements(player, killRecordsAll.get(player.getUniqueId()));
     }
 
     public static void addAssist(Player player) {
@@ -566,7 +574,8 @@ public class Leaderboard implements Serializable {
             assistRecordsMonth.replace(player.getUniqueId(), assistRecordsMonth.get(player.getUniqueId()) + 1);
         }
 
-        Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " has assisted " + assistRecordsAll.get(player.getUniqueId()) + " murder(s)");
+        // Check achievements
+        Achievements.checkAssistTotalAchievements(player, assistRecordsAll.get(player.getUniqueId()));
     }
 
     public static void addDeath(Player player) {
@@ -586,7 +595,8 @@ public class Leaderboard implements Serializable {
             deathRecordsMonth.replace(player.getUniqueId(), deathRecordsMonth.get(player.getUniqueId()) + 1);
         }
 
-        Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " has died " + deathRecordsAll.get(player.getUniqueId()) + " time(s)");
+        // Check achievements
+        Achievements.checkDeathTotalAchievements(player, deathRecordsAll.get(player.getUniqueId()));
     }
 
     public static void addCapture(Player player) {
@@ -606,7 +616,8 @@ public class Leaderboard implements Serializable {
             captureRecordsMonth.replace(player.getUniqueId(), captureRecordsMonth.get(player.getUniqueId()) + 1);
         }
 
-        Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " has scored " + captureRecordsAll.get(player.getUniqueId()) + " time(s)");
+        // Check achievements
+        Achievements.checkCaptureTotalAchievements(player, captureRecordsAll.get(player.getUniqueId()));
     }
 
     public static void addGamePlayed(Player player) {
@@ -626,7 +637,8 @@ public class Leaderboard implements Serializable {
             gamesPlayedRecordsMonth.replace(player.getUniqueId(), gamesPlayedRecordsMonth.get(player.getUniqueId()) + 1);
         }
 
-        Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " has played " + gamesPlayedRecordsAll.get(player.getUniqueId()) + " game(s)");
+        // Check achievements
+        Achievements.checkPlayTotalAchievements(player, gamesPlayedRecordsAll.get(player.getUniqueId()));
     }
 
     public static void addGameWon(Player player) {
@@ -646,7 +658,8 @@ public class Leaderboard implements Serializable {
             gamesWonRecordsMonth.replace(player.getUniqueId(), gamesWonRecordsMonth.get(player.getUniqueId()) + 1);
         }
 
-        Bukkit.broadcastMessage(ChatColor.AQUA + player.getName() + " has won " + gamesWonRecordsAll.get(player.getUniqueId()) + " game(s)");
+        // Check achievements
+        Achievements.checkWinTotalAchievements(player, gamesWonRecordsAll.get(player.getUniqueId()));
     }
 
     public static int getKills(Player player) {
@@ -677,5 +690,21 @@ public class Leaderboard implements Serializable {
     public static int getGamesWon(Player player) {
         if (!gamesWonRecordsAll.containsKey(player.getUniqueId())) { return -1; }
         return gamesWonRecordsAll.get(player.getUniqueId());
+    }
+
+    @EventHandler
+    public void onGameWon(WarScoreCapEvent event) {
+        for (Team team : event.getWinningTeams()) {
+            for (Player player : team.getPlayers()) {
+                addGameWon(player);
+            }
+        }
+        for (Team team : event.getWarzone().getTeams()) {
+            for (Player player : team.getPlayers()) {
+                addGamePlayed(player);
+            }
+        }
+
+        updateSigns();
     }
 }

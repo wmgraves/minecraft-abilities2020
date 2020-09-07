@@ -18,6 +18,7 @@ import com.gmail.mattdiamond98.coronacraft.abilities.Ninja.NinjaMovement;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ninja.ShadowKnife;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ninja.ShurikenBag;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ranger.Longbow;
+import com.gmail.mattdiamond98.coronacraft.abilities.Reaper.Rose;
 import com.gmail.mattdiamond98.coronacraft.abilities.Reaper.Scythe;
 import com.gmail.mattdiamond98.coronacraft.abilities.Skirmisher.Shortsword;
 import com.gmail.mattdiamond98.coronacraft.abilities.Skirmisher.Trap;
@@ -99,7 +100,8 @@ public class CoronaCraft extends JavaPlugin {
                 new Waraxe(),
                 new Rush(),
                 new Wand(),
-                new Scythe()
+                new Scythe(),
+                new Rose()
         );
 
         getServer().getPluginManager().registerEvents(new PlayerEventListener(), this);
@@ -107,6 +109,7 @@ public class CoronaCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FoodRegen(), this);
         getServer().getPluginManager().registerEvents(new PickaxeRegen(), this);
         getServer().getPluginManager().registerEvents(new UltimateListener(), this);
+        getServer().getPluginManager().registerEvents(new Leaderboard(), this);
         getServer().getPluginManager().registerEvents(new Achievements(), this);
 
         for (Loadout loadout : Loadout.values()) {
