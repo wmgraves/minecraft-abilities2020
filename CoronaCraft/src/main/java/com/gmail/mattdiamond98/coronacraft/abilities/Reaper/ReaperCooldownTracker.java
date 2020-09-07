@@ -14,9 +14,17 @@ public class ReaperCooldownTracker {
     }
 
     public static void setCooldown(Player player, HoeStyle style) {
+        if (style.cooldownTicks <= 0) { return; }
         cooldownList.add(player.getUniqueId());
         Bukkit.getScheduler().scheduleSyncDelayedTask(CoronaCraft.instance, () -> {
             cooldownList.remove(player.getUniqueId());
         }, style.cooldownTicks);
+    }
+
+    public static void setCooldown(Player player, int ticks) {
+        cooldownList.add(player.getUniqueId());
+        Bukkit.getScheduler().scheduleSyncDelayedTask(CoronaCraft.instance, () -> {
+            cooldownList.remove(player.getUniqueId());
+        }, ticks);
     }
 }

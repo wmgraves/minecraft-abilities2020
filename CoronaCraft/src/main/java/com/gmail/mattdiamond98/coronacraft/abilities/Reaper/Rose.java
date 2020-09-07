@@ -2,15 +2,19 @@ package com.gmail.mattdiamond98.coronacraft.abilities.Reaper;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
 import com.gmail.mattdiamond98.coronacraft.abilities.Ability;
+import com.gmail.mattdiamond98.coronacraft.abilities.AbilityStyle;
+import com.gmail.mattdiamond98.coronacraft.event.CoolDownTickEvent;
 import com.gmail.mattdiamond98.coronacraft.util.AbilityUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import static org.bukkit.Bukkit.getServer;
 
 public class Rose extends Ability {
 
@@ -21,6 +25,12 @@ public class Rose extends Ability {
     @Override
     public void initialize() {
         styles.add(new GraveOmen());
+        styles.add(new GraspOfTheDamned());
+
+        for (AbilityStyle style : styles) {
+            if (!(style instanceof Listener)) { continue; }
+            getServer().getPluginManager().registerEvents((Listener) style, CoronaCraft.instance);
+        }
     }
 
     /**
@@ -42,17 +52,14 @@ public class Rose extends Ability {
      */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Bukkit.broadcastMessage("1");
         Player player = event.getPlayer();
         // Check that it was a right click
         if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(
                 Action.RIGHT_CLICK_BLOCK)) {
             // Check that player has the correct item
             if (event.hasItem() && event.getItem().getType() == item) {
-                Bukkit.broadcastMessage("2");
                 // Check that the player is not currently on cooldown
                 if (!CoronaCraft.isOnCooldown(player, item)) {
-                    Bukkit.broadcastMessage("3");
                     RoseStyle style = (RoseStyle) getStyle(player);
                     CoronaCraft.setCooldown(player, item, style.cooldownSeconds *
                             CoronaCraft.ABILITY_TICK_PER_SECOND);
@@ -61,5 +68,10 @@ public class Rose extends Ability {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onCoolDownTick(CoolDownTickEvent e) {
+        AbilityUtil.setItemStackToCooldown(e.getPlayer(), item);
     }
 }

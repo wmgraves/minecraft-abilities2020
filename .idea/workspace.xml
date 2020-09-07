@@ -28,11 +28,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0581fea0-4993-45b5-9c7e-537ca940b2dd" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/ChainScythe.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/DeathsCarnage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/GraspOfTheDamned.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/InfernalScythe.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/SoulScythe.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/CoronaCraft.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/CoronaCraft.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/Loadout.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/Loadout.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/GhastlyScythe.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/GhastlyScythe.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/HoeStyle.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/HoeStyle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/GraveOmen.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/GraveOmen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/ReaperCooldownTracker.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/ReaperCooldownTracker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/Rose.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/Rose.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/Scythe.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/Reaper/Scythe.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/UltimateListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/abilities/UltimateListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/util/Achievements.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/util/Achievements.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/util/Leaderboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/CoronaCraft/src/main/java/com/gmail/mattdiamond98/coronacraft/util/Leaderboard.java" afterDir="false" />
@@ -196,10 +204,14 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="463" y="105" key="FileChooserDialogImpl/0.0.1366.728/-1920.-313.1920.1040@0.0.1366.728" timestamp="1599060081408" />
-    <state x="390" y="97" width="628" height="534" key="find.popup" timestamp="1599260702833">
+    <state x="390" y="97" width="628" height="534" key="find.popup" timestamp="1599340081527">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="390" y="97" width="628" height="534" key="find.popup/0.0.1366.728/-1920.-313.1920.1040@0.0.1366.728" timestamp="1599260702833" />
+    <state x="390" y="97" width="628" height="534" key="find.popup/0.0.1366.728/-1920.-313.1920.1040@0.0.1366.728" timestamp="1599340081527" />
+    <state x="346" y="49" width="672" height="678" key="search.everywhere.popup" timestamp="1599342196874">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="346" y="49" width="672" height="678" key="search.everywhere.popup/0.0.1366.728/-1920.-313.1920.1040@0.0.1366.728" timestamp="1599342196874" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -5,16 +5,15 @@ import com.tommytony.war.Team;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockVector;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GhastlyScythe extends HoeStyle {
-    private static int fuelTimeSeconds = 6;
+public class SoulScythe extends HoeStyle {
+    private static int fuelTimeSeconds = 3;
     private int ticksPerSecond = 20;
     private final int maxBlockRange = 6;
     private final double targetingTolerance = 1.5;
@@ -28,12 +27,12 @@ public class GhastlyScythe extends HoeStyle {
     private final int cycleTicks = ticksPerSecond / cyclesPerSecond;
     private final double cycleDistance = 1;
 
-    public GhastlyScythe() {
-        super("Ghastly Scythe", new String[] {
+    public SoulScythe() {
+        super("Soul Scythe", new String[] {
                 "Spray nearby enemies with particles",
-                "that cause 5 seconds of blindness.",
+                "that steal their health and give it to you.",
                 "Cost: " + Math.round(1000f / fuelTimeSeconds) / 10f + "% / second"
-        }, 0);
+        }, "coronacraft.reaper.soulscythe", 0);
         cooldownTicks = streamTicks;
         fuelCost = streamDurability;
     }
@@ -54,7 +53,7 @@ public class GhastlyScythe extends HoeStyle {
         final Location firedFrom = player.getLocation().add(0, 1.5, 0);
         final Location currentLocation = player.getLocation().add(0, 1.5, 0);
         final BlockVector increment = (BlockVector) player.getLocation().getDirection()
-                        .toBlockVector().normalize().multiply(cycleDistance);
+                .toBlockVector().normalize().multiply(cycleDistance);
 
         // Create a runnable that acts as a stream
         BukkitRunnable run = new BukkitRunnable() {
@@ -68,9 +67,9 @@ public class GhastlyScythe extends HoeStyle {
                 // Update the current stream position
                 currentLocation.add(increment);
                 currentLocation.getWorld().spawnParticle(Particle.REDSTONE, currentLocation, 1,
-                        new Particle.DustOptions(Color.fromRGB(0, 0, 0), 3));
+                        new Particle.DustOptions(Color.fromRGB(85, 107, 47), 3));
 
-                // Give blindness to all nearby enemies
+                // Steal a small amount of health form all nearby enemies
                 Set<Player> enemies = currentLocation.getWorld().getNearbyEntities(currentLocation,
                         targetingTolerance, targetingTolerance, targetingTolerance).stream()
                         .filter(entity -> entity instanceof Player)
@@ -81,8 +80,11 @@ public class GhastlyScythe extends HoeStyle {
 
                 if (!enemies.isEmpty()) {
                     for (Player enemy : enemies) {
-                        enemy.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,
-                                5 * ticksPerSecond, 1));
+                        enemy.damage(1);
+                        if (player.getHealth() < player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+                            player.setHealth(Math.min(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)
+                                    .getValue(), player.getHealth() + 1));
+                        }
                     }
                 }
             }

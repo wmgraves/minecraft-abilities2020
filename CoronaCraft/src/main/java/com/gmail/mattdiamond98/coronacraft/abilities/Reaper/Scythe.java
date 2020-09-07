@@ -28,6 +28,9 @@ public class Scythe extends Ability {
     @Override
     public void initialize() {
         styles.add(new GhastlyScythe());
+        styles.add(new InfernalScythe());
+        styles.add(new SoulScythe());
+        styles.add(new ChainScythe());
     }
 
     /**
@@ -52,7 +55,7 @@ public class Scythe extends Ability {
     public void onPlayerLeaveSpawn(WarPlayerLeaveSpawnEvent event) {
         if (AbilityUtil.inventoryContains(event.getPlayer(), item)) {
             event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW,
-                    10000000, 1, true, false));
+                    10000000, 0, true, false));
         }
     }
 
@@ -95,8 +98,9 @@ public class Scythe extends Ability {
             ItemStack heldItem = attacker.getInventory().getItemInMainHand();
             if (heldItem != null && heldItem.getType() == item && heldItem.getDurability() > 0) {
                 // Give back a third of the original durability
-                Bukkit.broadcastMessage("regenerated third of durability");
                 heldItem.setDurability((short) Math.max(0, heldItem.getDurability() - hoeMaxDurability / 3));
+                // Do 12 damage
+                event.setDamage(12);
             }
         }
     }
@@ -113,7 +117,6 @@ public class Scythe extends Ability {
             ItemStack heldItem = attacker.getInventory().getItemInMainHand();
             if (heldItem != null && heldItem.getType() == item && heldItem.getDurability() > 0) {
                 // Reset the durability of the hoe
-                Bukkit.broadcastMessage("fullyRegeneratedDurability");
                 heldItem.setDurability((short) 0);
             }
         }
