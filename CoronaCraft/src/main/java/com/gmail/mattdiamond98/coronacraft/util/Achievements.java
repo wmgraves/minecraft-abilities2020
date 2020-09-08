@@ -1,7 +1,13 @@
 package com.gmail.mattdiamond98.coronacraft.util;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
+import com.gmail.mattdiamond98.coronacraft.Loadout;
+import com.gmail.mattdiamond98.coronacraft.abilities.Reaper.ReaperCooldownTracker;
+import com.tommytony.war.Team;
+import com.tommytony.war.event.WarPlayerJoinEvent;
 import com.tommytony.war.event.WarPlayerLeaveEvent;
+import com.tommytony.war.event.WarPlayerLeaveSpawnEvent;
+import com.tommytony.war.event.WarScoreCapEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -31,13 +37,17 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class Achievements implements Listener {
-    private static transient final long serialVersionUID = 4966211451999538092L;
+    //private static transient final long serialVersionUID = 4966211451999538092L;
     private static String folderPath;
     private static String fileType;
     private static int autosaveInterval = 30 * 60;
     private static HashMap<UUID, HashMap<String, String>> achievementData = new HashMap<>();
     private static HashMap<String, String> achievementInfo = new HashMap<>();
     private static HashMap<UUID, LinkedList<String>> bankedAchievements = new HashMap<>();
+
+    private static String[] classNames = new String[]{"Fighter", "Ranger", "Tank", "Engineer", "Anarchist",
+            "Skirmisher", "Gladiator", "Ninja", "Berserker", "Wizard", "Summoner", "Reaper", "Healer",
+            "Gunslinger"};
 
     public Achievements() {}
 
@@ -85,16 +95,24 @@ public class Achievements implements Listener {
         achievementInfo.put("Kill a Developer", "Kill one of the plugin developers");
         achievementInfo.put("Kill the Owner", "Kill Malatak1");
         achievementInfo.put("Kill an Architect", "Kill one of the architects");
-        achievementInfo.put("Best Time to Play", "Play on a Thursday at 8:00PM EST");
+
+        for (String className : classNames) {
+            achievementInfo.put("Play as " + className, "Play as a " + className.toLowerCase() + " in a game");
+            achievementInfo.put("Kill as " + className, "Kill an enemy as a " + className.toLowerCase());
+        }
+
+        achievementInfo.put("Best Time to Play", "Play on a Thursday between 8:00PM and 10:00PM EST");
+        achievementInfo.put("Guaranteed Win", "Win a game while on Arvein's team");
+        achievementInfo.put("Play All Classes", "Play with all available classes");
+        achievementInfo.put("Kill with All Classes", "Kill at least one enemy with each classes");
+
+        //TODO: Implement the achievements below
         achievementInfo.put("Triple Kill", "Kill three enemies without dying");
         achievementInfo.put("Quadruple Kill", "Kill four enemies without dying");
         achievementInfo.put("Ten Kills in a Game", "Kill ten enemies in one game");
         achievementInfo.put("Two Cap. in a Game", "Capture two flags in one game");
-        achievementInfo.put("Play All Classes", "Play with all available classes");
-        achievementInfo.put("Kill with All Classes", "Kill at least one enemy with each classes");
+        achievementInfo.put("Extreme Death Streak", "Die ten times in a row");
         achievementInfo.put("Kill All Classes", "Kill at least one enemy playing every class");
-        achievementInfo.put("Guaranteed Win", "Win a game while on Arvein's team");
-        achievementInfo.put("Extreme Death Streak", "Die twenty times in a row");
     }
 
     /**
@@ -116,7 +134,7 @@ public class Achievements implements Listener {
         catch (IOException e) {
             System.out.println(e.getStackTrace());
             Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Failed to save achievements data - report" +
-                    " this to @the_oshawott on discord immediately");
+                    " this to @the_oshawott on discord");
             return false;
         }
     }
@@ -158,11 +176,12 @@ public class Achievements implements Listener {
         // Check that achievement exists
         if (!achievementInfo.containsKey(achievementName)) {
             Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Achievement name \"" + achievementName +
-                    "\" not recognized - report this to @the_oshawott on discord immediately");
+                    "\" not recognized - report this to @the_oshawott on discord");
             return false;
         }
 
         // Check whether player already earned the achievement
+        if (player == null) { return false; }
         HashMap<String, String> playerData = achievementData.get(player.getUniqueId());
         if (playerData.get(achievementName) != null) {
             return false;
@@ -209,7 +228,7 @@ public class Achievements implements Listener {
         // Check that achievement exists
         if (!achievementInfo.containsKey(achievementName)) {
             Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Achievement name \"" + achievementName +
-                    "\" not recognized - report this to @the_oshawott on discord immediately");
+                    "\" not recognized - report this to @the_oshawott on discord");
             return;
         }
 
@@ -255,14 +274,33 @@ public class Achievements implements Listener {
         updateAchievementsBook(player);
     }
 
+    /**
+     * Handle updating the progress book in a player's inventory when they leave a game
+     * @param event The WarPlayerLeaveEvent
+     */
     @EventHandler
-    public void playerLeftGame(WarPlayerLeaveEvent event) {
+    public void playerLeftZone(WarPlayerLeaveEvent event) {
         // Check whether the player is still online
         Player player = Bukkit.getPlayer(event.getQuitter());
         if (!player.isOnline()) { return; }
 
-        // Update the achievements book in the player's inventory
-        updateAchievementsBook(player);
+        // Update the achievements book in the player's inventory after a short delay
+        // (to ensure everything else is updated)
+        Bukkit.getScheduler().scheduleSyncDelayedTask(CoronaCraft.instance, () -> {
+            updateAchievementsBook(player);
+        }, 10);
+    }
+
+    /**
+     * Announce all achievements when a game ends
+     * @param event The WarScoreCapEvent
+     */
+    @EventHandler
+    public void onGameEnd(WarScoreCapEvent event) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            checkTotalClassAchievements(player);
+        }
+        announceAllAchievements();
     }
 
     /**
@@ -291,22 +329,34 @@ public class Achievements implements Listener {
         bm.setAuthor("the_oshawott");
         bm.setTitle(bookTitle);
 
+        LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("hh:mma EST,\nMM/dd/yy"));
+
         // Book info:
         // Max number of pages: 50
         // Max number of lines per page: 13
-        // Max number of characters per line: 19 (last line on each page is 18) (reduced by some formatting)
+        // Max number of characters per line: 19 (last line on each page is 18) (reduced by some formatting options)
         String[] pages = new String[]{
+                "\n" +
+                        "§lACHIEVEMENTS§r\n" +
+                        "§lPROGRESS§r\n" +
+                        "\n" +
+                        "Book Updated at:\n" +
+                        formattedDate + "\n" +
+                        "\n" +
+                        "If you find any issues with this book, please report them to @the_oshawott on Discord.",
                 "§lCONTENTS§r\n" +
                         "\n" +
-                        " 2: Overall Stats\n" +
-                        " 3: Kill ACHV\n" +
-                        " 4: Assist ACHV\n" +
-                        " 5: Death ACHV\n" +
-                        " 6: Capture ACHV\n" +
-                        " 7: Win ACHV\n" +
-                        " 8: Play ACHV\n" +
-                        " 9: Miscellaneous\n" +
-                        "11: Special Kills\n",
+                        " 3: Overall Stats\n" +
+                        " 4: Kill ACHV\n" +
+                        " 5: Assist ACHV\n" +
+                        " 6: Death ACHV\n" +
+                        " 7: Capture ACHV\n" +
+                        " 8: Win ACHV\n" +
+                        " 9: Play ACHV\n" +
+                        "10: Class ACHV\n" +
+                        "15: Miscellaneous\n" +
+                        "17: Special Kills\n",
                 "§lOVERALL STATS§r\n" +
                         "\n" +
                         "Kills: " + Leaderboard.getKills(player) + "\n" +
@@ -315,6 +365,7 @@ public class Achievements implements Listener {
                         "Captures: " + Leaderboard.getCaptures(player) + "\n" +
                         "Wins: " + Leaderboard.getGamesWon(player) + "\n" +
                         "Games Played: " + Leaderboard.getGamesPlayed(player) + "\n" +
+                        "Classes Used: " + getClassesPlayed(player) + "\n" +
                         "\n" +
                         "Total Achievements: " + getAchievementCompletion(player),
                 "§lKill ACHV§r\n" +
@@ -353,6 +404,44 @@ public class Achievements implements Listener {
                         getAchievementStatus(player, "Ten Games") +
                         getAchievementStatus(player, "One Hundred Games") +
                         getAchievementStatus(player, "Two Hundred Games"),
+                "§lClass ACHV§r\n" +
+                        "\n" +
+                        getAchievementStatus(player, "Play as Fighter") +
+                        getAchievementStatus(player, "Kill as Fighter") +
+                        getAchievementStatus(player, "Play as Ranger") +
+                        getAchievementStatus(player, "Kill as Ranger") +
+                        getAchievementStatus(player, "Play as Tank") +
+                        getAchievementStatus(player, "Kill as Tank"),
+                "§lClass ACHV§r\n" +
+                        "\n" +
+                        getAchievementStatus(player, "Play as Engineer") +
+                        getAchievementStatus(player, "Kill as Engineer") +
+                        getAchievementStatus(player, "Play as Anarchist") +
+                        getAchievementStatus(player, "Kill as Anarchist") +
+                        getAchievementStatus(player, "Play as Skirmisher") +
+                        getAchievementStatus(player, "Kill as Skirmisher"),
+                "§lClass ACHV§r\n" +
+                        "\n" +
+                        getAchievementStatus(player, "Play as Gladiator") +
+                        getAchievementStatus(player, "Kill as Gladiator") +
+                        getAchievementStatus(player, "Play as Ninja") +
+                        getAchievementStatus(player, "Kill as Ninja") +
+                        getAchievementStatus(player, "Play as Berserker") +
+                        getAchievementStatus(player, "Kill as Berserker"),
+                "§lClass ACHV§r\n" +
+                        "\n" +
+                        getAchievementStatus(player, "Play as Wizard") +
+                        getAchievementStatus(player, "Kill as Wizard") +
+                        getAchievementStatus(player, "Play as Summoner") +
+                        getAchievementStatus(player, "Kill as Summoner") +
+                        getAchievementStatus(player, "Play as Reaper") +
+                        getAchievementStatus(player, "Kill as Reaper"),
+                "§lClass ACHV§r\n" +
+                        "\n" +
+                        getAchievementStatus(player, "Play as Healer") +
+                        getAchievementStatus(player, "Kill as Healer") +
+                        getAchievementStatus(player, "Play as Gunslinger") +
+                        getAchievementStatus(player, "Kill as Gunslinger"),
                 "§lMiscellaneous§r\n" +
                         "\n" +
                         getAchievementStatus(player, "Best Time to Play") +
@@ -381,7 +470,51 @@ public class Achievements implements Listener {
     }
 
     /**
-     * Returns a formatted string showing a ratio fo achievements completed
+     * Returns a formatted string showing a ratio of classes played
+     * @param player The player to check
+     * @return The formatted string
+     */
+    private static String getClassesPlayed(Player player) {
+        // Safety checks
+        HashMap<String, String> playerData = achievementData.get(player.getUniqueId());
+        if (playerData == null || playerData.size() == 0) { return "§berror§r"; }
+
+        // Count progress on all achievements
+        int total = 0, played = 0;
+        for (String className : classNames) {
+            total++;
+            if (playerData.get("Play as " + className) != null) {
+                played++;
+            }
+        }
+
+        return played + "/" + total;
+    }
+
+    /**
+     * Returns a formatted string showing a ratio of classes played and with kills
+     * @param player The player to check
+     * @return The formatted string
+     */
+    private static String getClassesWithKills(Player player) {
+        // Safety checks
+        HashMap<String, String> playerData = achievementData.get(player.getUniqueId());
+        if (playerData == null || playerData.size() == 0) { return "§berror§r"; }
+
+        // Count progress on all achievements
+        int total = 0, withKills = 0;
+        for (String className : classNames) {
+            total++;
+            if (playerData.get("Kill as " + className) != null) {
+                withKills++;
+            }
+        }
+
+        return withKills + "/" + total;
+    }
+
+    /**
+     * Returns a formatted string showing a ratio of achievements completed
      * @param player The player to check
      * @return The formatted string
      */
@@ -585,6 +718,155 @@ public class Achievements implements Listener {
                     bankAchievement(killer, "Kill an Architect");
                     break;
             }
+        }
+
+        // Check killer's loadout
+        Loadout loadout = Loadout.getLoadout(killer);
+        if (Loadout.getLoadout(killer) != null) {
+            if (loadout == Loadout.FIGHTER) {
+                bankAchievement(killer, "Kill as Fighter");
+            }
+            else if (loadout == Loadout.RANGER) {
+                bankAchievement(killer, "Kill as Ranger");
+            }
+            else if (loadout == Loadout.TANK) {
+                bankAchievement(killer, "Kill as Tank");
+            }
+            else if (loadout == Loadout.ENGINEER) {
+                bankAchievement(killer, "Kill as Engineer");
+            }
+            else if (loadout == Loadout.ANARCHIST) {
+                bankAchievement(killer, "Kill as Anarchist");
+            }
+            else if (loadout == Loadout.SKIRMISHER) {
+                bankAchievement(killer, "Kill as Skirmisher");
+            }
+            else if (loadout == Loadout.GLADIATOR) {
+                bankAchievement(killer, "Kill as Gladiator");
+            }
+            else if (loadout == Loadout.NINJA) {
+                bankAchievement(killer, "Kill as Ninja");
+            }
+            else if (loadout == Loadout.BERSERKER) {
+                bankAchievement(killer, "Kill as Berserker");
+            }
+            else if (loadout == Loadout.WIZARD) {
+                bankAchievement(killer, "Kill as Wizard");
+            }
+//            else if (loadout == Loadout.SUMMONER) {
+//                bankAchievement(killer, "Kill as Summoner");
+//            }
+            else if (loadout == Loadout.REAPER) {
+                bankAchievement(killer, "Kill as Reaper");
+            }
+//            else if (loadout == Loadout.HEALER) {
+//                bankAchievement(killer, "Kill as Healer");
+//            }
+//            else if (loadout == Loadout.GUNSLINGER) {
+//                bankAchievement(killer, "Kill as Summoner");
+//            }
+            else {
+                Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Unrecognized loadout for player " +
+                        killer.getName() + ". Report this to @the_oshawott on Discord.");
+            }
+        }
+    }
+
+    /**
+     * Checks all achievements based on special things about the killer or victim
+     * @param event The WarPlayerLeaveSpawnEvent
+     */
+    @EventHandler
+    public void checkSpecialPlayAchievements(WarPlayerLeaveSpawnEvent event) {
+        Player player = event.getPlayer();
+
+        // Check player's loadout
+        Loadout loadout = Loadout.getLoadout(player);
+        if (Loadout.getLoadout(player) != null) {
+            if (loadout == Loadout.FIGHTER) {
+                bankAchievement(player, "Play as Fighter");
+            }
+            else if (loadout == Loadout.RANGER) {
+                bankAchievement(player, "Play as Ranger");
+            }
+            else if (loadout == Loadout.TANK) {
+                bankAchievement(player, "Play as Tank");
+            }
+            else if (loadout == Loadout.ENGINEER) {
+                bankAchievement(player, "Play as Engineer");
+            }
+            else if (loadout == Loadout.ANARCHIST) {
+                bankAchievement(player, "Play as Anarchist");
+            }
+            else if (loadout == Loadout.SKIRMISHER) {
+                bankAchievement(player, "Play as Skirmisher");
+            }
+            else if (loadout == Loadout.GLADIATOR) {
+                bankAchievement(player, "Play as Gladiator");
+            }
+            else if (loadout == Loadout.NINJA) {
+                bankAchievement(player, "Play as Ninja");
+            }
+            else if (loadout == Loadout.BERSERKER) {
+                bankAchievement(player, "Play as Berserker");
+            }
+            else if (loadout == Loadout.WIZARD) {
+                bankAchievement(player, "Play as Wizard");
+            }
+//            else if (loadout == Loadout.SUMMONER) {
+//                bankAchievement(player, "Play as Summoner");
+//            }
+            else if (loadout == Loadout.REAPER) {
+                bankAchievement(player, "Play as Reaper");
+            }
+//            else if (loadout == Loadout.HEALER) {
+//                bankAchievement(player, "Play as Healer");
+//            }
+//            else if (loadout == Loadout.GUNSLINGER) {
+//                bankAchievement(player, "Play as Summoner");
+//            }
+            else {
+                Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Unrecognized loadout for player " +
+                        player.getName() + ". Report this to @the_oshawott on Discord.");
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerEnteredGame(WarPlayerJoinEvent event) {
+        // Handle best time achievement
+        LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
+        if (date.getHour() >= 20 && date.getHour() <= 22) {
+            bankAchievement(event.getPlayer(), "Best Time to Play");
+        }
+    }
+
+    public static void checkSpecialTeamAchievements(Team winningTeam) {
+        // Handle guaranteed win
+        for (Player player : winningTeam.getPlayers()) {
+            if (player.getName().toLowerCase().equals("arvein")) {
+                // Award achievement to all of Arvein's teammates
+                for (Player teammate : winningTeam.getPlayers()) {
+                    bankAchievement(teammate, "Guaranteed Win");
+                }
+
+                //Break out of loop
+                break;
+            }
+        }
+    }
+
+    public static void checkTotalClassAchievements(Player player) {
+        // Check if the player has played with all classes
+        String[] parts = getClassesPlayed(player).split("/");
+        if (parts[0].equals(parts[1])) {
+            bankAchievement(player, "Play All Classes");
+        }
+
+        // Check if the player has killed with all classes
+        parts = getClassesWithKills(player).split("/");
+        if (parts[0].equals(parts[1])) {
+            bankAchievement(player, "Kill with All Classes");
         }
     }
 }

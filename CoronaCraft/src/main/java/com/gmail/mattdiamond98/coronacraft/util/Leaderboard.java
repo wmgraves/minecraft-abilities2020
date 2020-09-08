@@ -23,11 +23,11 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class Leaderboard implements Serializable, Listener {
-    private static transient final long serialVersionUID = 3455595407807914611L;
+    //private static transient final long serialVersionUID = 3455595407807914611L;
     private static String folderPath;
     private static String fileType;
     private static int autosaveInterval = 30 * 60;
-    private static Achievements achievementTracker;
+    //private static Achievements achievementTracker;
 
     private static Map<UUID, Integer> killRecordsAll = new HashMap<>();
     private static Map<UUID, Integer> assistRecordsAll = new HashMap<>();
@@ -371,7 +371,8 @@ public class Leaderboard implements Serializable, Listener {
         }
         catch (IOException e) {
             e.printStackTrace();
-            Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Failed to save leaderboard data - report this to @the_oshawott on discord immediately");
+            Bukkit.broadcastMessage(ChatColor.AQUA + "ERROR: Failed to save leaderboard data - report this to " +
+                    "@the_oshawott on discord");
             return false;
         }
     }
@@ -381,7 +382,7 @@ public class Leaderboard implements Serializable, Listener {
      * @return Whether loading was successful
      */
     private static boolean loadData() {
-        achievementTracker = new Achievements();
+        //achievementTracker = new Achievements();
         System.out.println("Loading leaderboard data...");
 
         try {
@@ -697,6 +698,9 @@ public class Leaderboard implements Serializable, Listener {
         for (Team team : event.getWinningTeams()) {
             for (Player player : team.getPlayers()) {
                 addGameWon(player);
+
+                // Check achievements
+                Achievements.checkSpecialTeamAchievements(team);
             }
         }
         for (Team team : event.getWarzone().getTeams()) {
