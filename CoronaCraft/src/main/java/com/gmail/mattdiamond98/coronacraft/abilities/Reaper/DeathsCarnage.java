@@ -76,6 +76,8 @@ public class DeathsCarnage extends UltimateAbility {
 
             if (!enemies.isEmpty()) {
                 for (Player enemy : enemies) {
+                    if (AbilityUtil.inSpawn(enemy)) { continue; }
+
                     if (!enemy.hasPotionEffect(PotionEffectType.WITHER)) {
                         enemy.addPotionEffect(new PotionEffect(PotionEffectType.WITHER,
                                 3 * 20, 0));

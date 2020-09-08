@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class InfernalScythe extends HoeStyle {
-    private static int fuelTimeSeconds = 4;
+    private static int fuelTimeSeconds = 3;
     private int ticksPerSecond = 20;
     private final int maxBlockRange = 6;
     private final double targetingTolerance = 1.5;
@@ -24,9 +24,9 @@ public class InfernalScythe extends HoeStyle {
     private final int streamDurability = (Scythe.hoeMaxDurability - Scythe.hoeMinDurability) /
             (fuelTimeSeconds * streamsPerSecond);
 
-    private final int cyclesPerSecond = 5;
+    private final int cyclesPerSecond = 10;
     private final int cycleTicks = ticksPerSecond / cyclesPerSecond;
-    private final double cycleDistance = 1;
+    private final double cycleDistance = 15 / cyclesPerSecond;
 
     public InfernalScythe() {
         super("Infernal Scythe", new String[] {

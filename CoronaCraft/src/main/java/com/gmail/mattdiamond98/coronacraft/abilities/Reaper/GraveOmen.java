@@ -18,7 +18,7 @@ public class GraveOmen extends RoseStyle {
 
     public GraveOmen() {
         super("Grave Omen", new String[] {
-                "Give 5 seconds of Wither II to all",
+                "Give 7 seconds of Wither II to all",
                 "enemies within a 5 block radius.",
                 "Cooldown: 15 seconds"
         }, 0);
@@ -42,8 +42,9 @@ public class GraveOmen extends RoseStyle {
 
         if (!enemies.isEmpty()) {
             for (Player enemy : enemies) {
+                if (AbilityUtil.inSpawn(enemy)) { continue; }
                 enemy.addPotionEffect(new PotionEffect(PotionEffectType.WITHER,
-                        5 * 20, 1));
+                        7 * 20, 1));
             }
         }
 

@@ -5,6 +5,8 @@ import com.gmail.mattdiamond98.coronacraft.util.AbilityUtil;
 import com.tommytony.war.event.WarPlayerLeaveSpawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +16,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -56,6 +59,17 @@ public class Scythe extends Ability {
         if (AbilityUtil.inventoryContains(event.getPlayer(), item)) {
             event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW,
                     10000000, 0, true, false));
+
+            for (ItemStack current : event.getPlayer().getInventory()) {
+                if (current != null && current.getType() == item) {
+                    ItemMeta meta = current.getItemMeta();
+//                    meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+//                    meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE);
+                    meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier("generic.attackSpeed", -3.3, AttributeModifier.Operation.ADD_NUMBER));
+                    meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier("generic.attackDamage", 11, AttributeModifier.Operation.ADD_NUMBER));
+                    current.setItemMeta(meta);
+                }
+            }
         }
     }
 
@@ -98,9 +112,7 @@ public class Scythe extends Ability {
             ItemStack heldItem = attacker.getInventory().getItemInMainHand();
             if (heldItem != null && heldItem.getType() == item && heldItem.getDurability() > 0) {
                 // Give back a third of the original durability
-                heldItem.setDurability((short) Math.max(0, heldItem.getDurability() - hoeMaxDurability / 3));
-                // Do 12 damage
-                event.setDamage(12);
+                heldItem.setDurability((short) Math.max(0, heldItem.getDurability() - hoeMaxDurability / 4));
             }
         }
     }

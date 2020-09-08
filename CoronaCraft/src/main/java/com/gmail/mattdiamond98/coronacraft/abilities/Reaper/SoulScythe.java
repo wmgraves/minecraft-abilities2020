@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SoulScythe extends HoeStyle {
-    private static int fuelTimeSeconds = 3;
+    private static int fuelTimeSeconds = 2;
     private int ticksPerSecond = 20;
     private final int maxBlockRange = 6;
     private final double targetingTolerance = 1.5;
@@ -23,9 +23,9 @@ public class SoulScythe extends HoeStyle {
     private final int streamDurability = (Scythe.hoeMaxDurability - Scythe.hoeMinDurability) /
             (fuelTimeSeconds * streamsPerSecond);
 
-    private final int cyclesPerSecond = 5;
+    private final int cyclesPerSecond = 10;
     private final int cycleTicks = ticksPerSecond / cyclesPerSecond;
-    private final double cycleDistance = 1;
+    private final double cycleDistance = 15 / cyclesPerSecond;
 
     public SoulScythe() {
         super("Soul Scythe", new String[] {
@@ -83,7 +83,7 @@ public class SoulScythe extends HoeStyle {
                         enemy.damage(1);
                         if (player.getHealth() < player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
                             player.setHealth(Math.min(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)
-                                    .getValue(), player.getHealth() + 1));
+                                    .getValue(), player.getHealth() + 0.5));
                         }
                     }
                 }
