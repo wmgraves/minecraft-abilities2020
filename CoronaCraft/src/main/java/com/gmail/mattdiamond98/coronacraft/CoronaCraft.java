@@ -122,7 +122,7 @@ public class CoronaCraft extends JavaPlugin {
             Bukkit.getPluginManager().callEvent(new CoronaCraftTickEvent());
             if (PLAYER_COOL_DOWNS.isEmpty()) return;
             for (AbilityKey key : new HashSet<>(PLAYER_COOL_DOWNS.keySet())) {
-                if (key == null || !PLAYER_COOL_DOWNS.containsKey(key)) return;
+                if (key == null || key.getPlayer() == null || !PLAYER_COOL_DOWNS.containsKey(key)) return;
                 if (!key.getPlayer().isOnline()) {
                     PLAYER_COOL_DOWNS.remove(key);
                     return;
