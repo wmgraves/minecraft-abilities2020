@@ -108,6 +108,7 @@ public class CoronaCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new UltimateListener(), this);
         getServer().getPluginManager().registerEvents(new Leaderboard(), this);
         getServer().getPluginManager().registerEvents(new Achievements(), this);
+        getServer().getPluginManager().registerEvents(new GameActionTracker(), this);
 
         for (Loadout loadout : Loadout.values()) {
             if (loadout.getUltimate() != null)
