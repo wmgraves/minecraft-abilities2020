@@ -2,7 +2,6 @@ package com.gmail.mattdiamond98.coronacraft.util;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
 import com.gmail.mattdiamond98.coronacraft.Loadout;
-import com.gmail.mattdiamond98.coronacraft.abilities.Reaper.ReaperCooldownTracker;
 import com.tommytony.war.Team;
 import com.tommytony.war.event.WarPlayerJoinEvent;
 import com.tommytony.war.event.WarPlayerLeaveEvent;
@@ -26,6 +25,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -49,6 +49,9 @@ public class Achievements implements Listener {
             "Skirmisher", "Gladiator", "Ninja", "Berserker", "Wizard", "Summoner", "Reaper", "Healer",
             "Gunslinger"};
 
+    /**
+     * Used for registering listener in CoronaCraft
+     */
     public Achievements() {}
 
     /**
@@ -66,7 +69,7 @@ public class Achievements implements Listener {
         };
         run.runTaskTimer(CoronaCraft.instance, 20 * autosaveInterval, 20 * autosaveInterval);
 
-        // Fill achievementInfo
+        // Fill achievementInfo (achievement name, achievement description)
         achievementInfo.put("First Kill", "Kill an enemy");
         achievementInfo.put("Ten Kills", "Kill ten enemies");
         achievementInfo.put("One Hundred Kills", "Kill one hundred enemies");
@@ -105,14 +108,11 @@ public class Achievements implements Listener {
         achievementInfo.put("Guaranteed Win", "Win a game while on Arvein's team");
         achievementInfo.put("Play All Classes", "Play with all available classes");
         achievementInfo.put("Kill with All Classes", "Kill at least one enemy with each classes");
-
-        //TODO: Implement the achievements below
         achievementInfo.put("Triple Kill", "Kill three enemies without dying");
         achievementInfo.put("Quadruple Kill", "Kill four enemies without dying");
         achievementInfo.put("Ten Kills in a Game", "Kill ten enemies in one game");
         achievementInfo.put("Two Cap. in a Game", "Capture two flags in one game");
-        achievementInfo.put("Extreme Death Streak", "Die ten times in a row");
-        achievementInfo.put("Kill All Classes", "Kill at least one enemy playing every class");
+        achievementInfo.put("Extreme Death Streak", "Die ten times without any kills");
     }
 
     /**
@@ -183,9 +183,7 @@ public class Achievements implements Listener {
         // Check whether player already earned the achievement
         if (player == null) { return false; }
         HashMap<String, String> playerData = achievementData.get(player.getUniqueId());
-        if (playerData.get(achievementName) != null) {
-            return false;
-        }
+        if (playerData.get(achievementName) != null) { return false; }
 
         // Update playerData and bank the achievement
         LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
@@ -288,7 +286,7 @@ public class Achievements implements Listener {
         // (to ensure everything else is updated)
         Bukkit.getScheduler().scheduleSyncDelayedTask(CoronaCraft.instance, () -> {
             updateAchievementsBook(player);
-        }, 10);
+        }, 5);
     }
 
     /**
@@ -300,7 +298,11 @@ public class Achievements implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             checkTotalClassAchievements(player);
         }
-        announceAllAchievements();
+
+        // Announce all achievements on a slight delay to ensure everything is updated
+        Bukkit.getScheduler().scheduleSyncDelayedTask(CoronaCraft.instance, () -> {
+            announceAllAchievements();
+        }, 5);
     }
 
     /**
@@ -330,7 +332,7 @@ public class Achievements implements Listener {
         bm.setTitle(bookTitle);
 
         LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
-        String formattedDate = date.format(DateTimeFormatter.ofPattern("hh:mma EST,\nMM/dd/yy"));
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("hh:mma")) + " EST";
 
         // Book info:
         // Max number of pages: 50
@@ -344,7 +346,9 @@ public class Achievements implements Listener {
                         "Book Updated at:\n" +
                         formattedDate + "\n" +
                         "\n" +
-                        "If you find any issues with this book, please report them to @the_oshawott on Discord.",
+                        "\n" +
+                        "\n" +
+                        "Report any issues with this book to @the_oshawott on discord.",
                 "§lCONTENTS§r\n" +
                         "\n" +
                         " 3: Overall Stats\n" +
@@ -447,7 +451,6 @@ public class Achievements implements Listener {
                         getAchievementStatus(player, "Best Time to Play") +
                         getAchievementStatus(player, "Play All Classes") +
                         getAchievementStatus(player, "Kill with All Classes") +
-                        getAchievementStatus(player, "Kill All Classes") +
                         getAchievementStatus(player, "Guaranteed Win"),
                 "§lMiscellaneous§r\n" +
                         "\n" +
@@ -832,15 +835,23 @@ public class Achievements implements Listener {
         }
     }
 
+    /**
+     * Checks all achievements based on time of day and week
+     * @param event The WarPlayerJoinEvent
+     */
     @EventHandler
     public void playerEnteredGame(WarPlayerJoinEvent event) {
         // Handle best time achievement
         LocalDateTime date = LocalDateTime.now(ZoneId.of("America/New_York")); // EST IS BEST TIMEZONE
-        if (date.getHour() >= 20 && date.getHour() <= 22) {
+        if (date.getHour() >= 20 && date.getHour() <= 22 && date.getDayOfWeek() == DayOfWeek.THURSDAY) {
             bankAchievement(event.getPlayer(), "Best Time to Play");
         }
     }
 
+    /**
+     * Checks all achievements based on team characteristics
+     * @param winningTeam The team that won a game
+     */
     public static void checkSpecialTeamAchievements(Team winningTeam) {
         // Handle guaranteed win
         for (Player player : winningTeam.getPlayers()) {
@@ -856,7 +867,11 @@ public class Achievements implements Listener {
         }
     }
 
-    public static void checkTotalClassAchievements(Player player) {
+    /**
+     * Checks all achievements based on class usage
+     * @param player The player to check
+     */
+    private void checkTotalClassAchievements(Player player) {
         // Check if the player has played with all classes
         String[] parts = getClassesPlayed(player).split("/");
         if (parts[0].equals(parts[1])) {
@@ -867,6 +882,36 @@ public class Achievements implements Listener {
         parts = getClassesWithKills(player).split("/");
         if (parts[0].equals(parts[1])) {
             bankAchievement(player, "Kill with All Classes");
+        }
+    }
+
+    /**
+     * Check all achievements basedon the player's actions throughout a game
+     * @param player The player to check
+     * @param playerData The HashMap that stores the player's actions
+     */
+    public static void checkGameActionsAchievements(Player player, HashMap<String, Integer> playerData) {
+        if (playerData == null || playerData.size() == 0) { return; }
+
+        // Check kill stuff
+        if (playerData.get("maxkillstreak") >= 3) {
+            bankAchievement(player, "Triple Kill");
+        }
+        if (playerData.get("maxkillstreak") >= 4) {
+            bankAchievement(player, "Quadruple Kill");
+        }
+        if (playerData.get("kills") >= 10) {
+            bankAchievement(player, "Ten Kills in a Game");
+        }
+
+        // Check death stuff
+        if (playerData.get("maxdeathstreak") >= 10) {
+            bankAchievement(player, "Extreme Death Streak");
+        }
+
+        // Check capture stuff
+        if (playerData.get("captures") >= 2) {
+            bankAchievement(player, "Two Cap. in a Game");
         }
     }
 }

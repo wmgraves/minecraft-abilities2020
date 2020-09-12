@@ -556,6 +556,7 @@ public class Leaderboard implements Serializable, Listener {
 
         // Check achievements
         Achievements.checkKillTotalAchievements(player, killRecordsAll.get(player.getUniqueId()));
+        GameActionTracker.recordKill(player);
     }
 
     public static void addAssist(Player player) {
@@ -598,6 +599,7 @@ public class Leaderboard implements Serializable, Listener {
 
         // Check achievements
         Achievements.checkDeathTotalAchievements(player, deathRecordsAll.get(player.getUniqueId()));
+        GameActionTracker.recordDeath(player);
     }
 
     public static void addCapture(Player player) {
@@ -619,6 +621,7 @@ public class Leaderboard implements Serializable, Listener {
 
         // Check achievements
         Achievements.checkCaptureTotalAchievements(player, captureRecordsAll.get(player.getUniqueId()));
+        GameActionTracker.recordCapture(player);
     }
 
     public static void addGamePlayed(Player player) {
