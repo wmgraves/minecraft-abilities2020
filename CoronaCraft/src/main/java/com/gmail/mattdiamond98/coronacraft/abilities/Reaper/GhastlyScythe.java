@@ -1,6 +1,7 @@
 package com.gmail.mattdiamond98.coronacraft.abilities.Reaper;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
+import com.gmail.mattdiamond98.coronacraft.util.PlayerInteraction;
 import com.tommytony.war.Team;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -83,6 +84,7 @@ public class GhastlyScythe extends HoeStyle {
                     for (Player enemy : enemies) {
                         enemy.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS,
                                 5 * ticksPerSecond, 1));
+                        PlayerInteraction.playerHarm(enemy, player);
                     }
                 }
             }

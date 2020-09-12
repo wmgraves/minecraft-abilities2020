@@ -2,6 +2,7 @@ package com.gmail.mattdiamond98.coronacraft.abilities.Reaper;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
 import com.gmail.mattdiamond98.coronacraft.util.AbilityUtil;
+import com.gmail.mattdiamond98.coronacraft.util.PlayerInteraction;
 import com.tommytony.war.Team;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -62,7 +63,7 @@ public class ChainScythe extends HoeStyle {
                 if (currentLocation.getBlockY() <= 1 || currentLocation.getBlock().getType() != Material.AIR) {
                     Bukkit.getScheduler().scheduleSyncDelayedTask(CoronaCraft.instance, () -> {
                         // Check that the player does not currently have a scythe in their inventory
-                        boolean canReturnScythe = AbilityUtil.inWarzone(player);
+                        boolean canReturnScythe = AbilityUtil.inWarzone(player) && !AbilityUtil.inSpawn(player);
                         if (canReturnScythe) {
                             for (ItemStack item : player.getInventory().getContents()) {
                                 if (item != null && item.getType() == Material.DIAMOND_HOE) {
@@ -99,9 +100,10 @@ public class ChainScythe extends HoeStyle {
                 if (!enemies.isEmpty()) {
                     Player enemy = (Player) enemies.toArray()[0];
                     enemy.damage(6);
+                    PlayerInteraction.playerHarm(enemy, player);
 
                     // Check that the player does not currently have a scythe in their inventory
-                    boolean canReturnScythe = AbilityUtil.inWarzone(player);
+                    boolean canReturnScythe = AbilityUtil.inWarzone(player) && !AbilityUtil.inSpawn(player);
                     if (canReturnScythe) {
                         for (ItemStack item : player.getInventory().getContents()) {
                             if (item != null && item.getType() == Material.DIAMOND_HOE) {

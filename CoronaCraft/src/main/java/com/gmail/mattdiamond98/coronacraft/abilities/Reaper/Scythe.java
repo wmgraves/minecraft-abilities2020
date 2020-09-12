@@ -89,7 +89,7 @@ public class Scythe extends Ability {
                 if (!ReaperCooldownTracker.isOnCooldown(player)) {
                     // Check that there is enough fuel left
                     HoeStyle style = (HoeStyle) getStyle(player);
-                    if (consumeDurability(player, style)) {
+                    if (style instanceof ChainScythe || consumeDurability(player, style)) {
                         ReaperCooldownTracker.setCooldown(player, style);
                         style.execute(player, event);
                     }
@@ -101,7 +101,7 @@ public class Scythe extends Ability {
     }
 
     /**
-     * Regenerates a third of the player's fuel when they hit an enemy.
+     * Regenerates a quarter of the player's fuel when they hit an enemy.
      * @param event The EntityDamageByEntityEvent event
      */
     @EventHandler
@@ -111,7 +111,7 @@ public class Scythe extends Ability {
             Player attacker = (Player) event.getDamager();
             ItemStack heldItem = attacker.getInventory().getItemInMainHand();
             if (heldItem != null && heldItem.getType() == item && heldItem.getDurability() > 0) {
-                // Give back a third of the original durability
+                // Give back a quarter of the original durability
                 heldItem.setDurability((short) Math.max(0, heldItem.getDurability() - hoeMaxDurability / 4));
             }
         }

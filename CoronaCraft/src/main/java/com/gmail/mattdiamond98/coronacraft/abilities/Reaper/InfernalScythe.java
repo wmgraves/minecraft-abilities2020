@@ -1,6 +1,7 @@
 package com.gmail.mattdiamond98.coronacraft.abilities.Reaper;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
+import com.gmail.mattdiamond98.coronacraft.util.PlayerInteraction;
 import com.tommytony.war.Team;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -84,6 +85,7 @@ public class InfernalScythe extends HoeStyle {
                         enemy.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,
                                 1 * ticksPerSecond, 1));
                         enemy.setFireTicks(3 * ticksPerSecond);
+                        PlayerInteraction.playerHarm(enemy, player);
                     }
                 }
             }

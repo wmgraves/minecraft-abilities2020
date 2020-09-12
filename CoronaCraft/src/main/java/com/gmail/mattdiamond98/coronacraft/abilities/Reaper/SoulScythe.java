@@ -1,6 +1,7 @@
 package com.gmail.mattdiamond98.coronacraft.abilities.Reaper;
 
 import com.gmail.mattdiamond98.coronacraft.CoronaCraft;
+import com.gmail.mattdiamond98.coronacraft.util.PlayerInteraction;
 import com.tommytony.war.Team;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -81,6 +82,8 @@ public class SoulScythe extends HoeStyle {
                 if (!enemies.isEmpty()) {
                     for (Player enemy : enemies) {
                         enemy.damage(1);
+                        PlayerInteraction.playerHarm(enemy, player);
+
                         if (player.getHealth() < player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
                             player.setHealth(Math.min(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)
                                     .getValue(), player.getHealth() + 0.5));
